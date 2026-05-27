@@ -9,7 +9,12 @@ import os
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'fallback-secret')
 
-# Simple UA list (no fake-useragent dependency)
+# ✅ ROOT ROUTE - YEH ADD KIYA HAI (MISSING THA)
+@app.route('/')
+def home():
+    return render_template('index.html')
+
+# Simple UA list
 USER_AGENTS = [
     'Mozilla/5.0 (Linux; Android 13; SM-G998B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -41,7 +46,6 @@ class FacebookBot:
         return "c_user" in self.cookies
     
     def send_group_post(self, group_id, message):
-        # Updated working GraphQL endpoint
         url = "https://www.facebook.com/api/graphql/"
         headers = {'User-Agent': self.get_random_ua()}
         
@@ -75,9 +79,6 @@ class FacebookBot:
         except:
             return False
 
-# Routes same rahenge (upar wala code copy karo)
-# ... [previous routes code same]
-
 @app.route('/login', methods=['POST'])
 def fb_login():
     uid = request.form['uid']
@@ -93,6 +94,28 @@ def fb_login():
         }
         return jsonify({'success': True, 'session_id': session_id})
     return jsonify({'success': False, 'error': 'Login failed'})
+
+# ✅ GET LOGIN PAGE - YEH BHI ADD KIYA HAI
+@app.route('/login', methods=['GET'])
+def login_page():
+    return '''
+    <!DOCTYPE html>
+    <html>
+    <head><title>Facebook Bot Login</title></head>
+    <body>
+        <h2>Facebook Message Bot</h2>
+        <form method="post" action="/login">
+            <input type="text" name="uid" placeholder="Facebook ID/Email" required><br><br>
+            <input type="password" name="password" placeholder="Password" required><br><br>
+            <select name="type">
+                <option value="group">Group</option>
+                <option value="user">User</option>
+            </select><br><br>
+            <button type="submit">Login</button>
+        </form>
+    </body>
+    </html>
+    '''
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
